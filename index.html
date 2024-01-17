@@ -6,12 +6,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Followinf</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
 </head>
 <body>
     <h1>Bitcoin Price Chart</h1>
-    <canvas id="btcChart"></canvas>
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+        <canvas id="btcChart"></canvas>
+    </div>
     <script>
         // JavaScript to fetch Bitcoin data and create the chart
+        const ctx = document.getElementById('btcChart').getContext('2d');
+    let btcChartData = {
+        labels: [],
+        datasets: [{
+            label: 'BTC Price (USD)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',  // Transparent pink
+            borderColor: 'rgb(255, 99, 132)',  // Solid pink
+            data: [],
+            fill: false,
+        }]
+    };
+
+    const config = {
+        type: 'line',
+        data: btcChartData,
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    time: {
+                        unit: 'minute',
+                        displayFormats: {
+                            minute: 'h:mm a'
+                        }
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Price (USD)'
+                    }
+                }]
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            }
+        }
+    };
+
+    const btcChart = new Chart(ctx, config);
+
+    async function fetchBitcoinData() {
+        try {
+            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            const data = await response.json();
+            const price = data.bitcoin.usd;
+            const now = new Date();
+
+            if (btcChartData.labels.length > 15) {
+                btcChartData.labels.shift();
+                btcChartData.datasets[0].data.shift();
+            }
+
+            btcChartData.labels.push(now.toLocaleTimeString());
+            btcChartData.datasets[0].data.push(price);
+            btcChart.update();
+        } catch (error) {
+            console.error('Error fetching Bitcoin data:', error);
+        }
+    }
+
+    // Fetch data every minute (60000 milliseconds)
+    setInterval(fetchBitcoinData, 60000);
+
+    // Fetch initial data
+    fetchBitcoinData();
     </script>
 </body>
 </html>
