@@ -7,6 +7,8 @@
         <title>Followinf</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2"></script>
+
         <style>
             .chart-container {
                 display: flex;
@@ -73,7 +75,25 @@
                 hover: {
                     mode: 'nearest',
                     intersect: true
+                },
+                annotation: {
+                annotations: {
+                    pointAnnotation: {
+                        type: 'point',
+                        xValue: new Date('2009-01-03').getTime(),
+                        yValue: 0, // Adjust this value based on the scale of your chart
+                        backgroundColor: 'blue',
+                        radius: 5,
+                        onClick: function(e) {
+                            // Display the information in a custom way or log to console
+                            const message = "Bitcoin Creation (January 2009): The release of the Bitcoin software by Satoshi Nakamoto and the mining of the genesis block marked the birth of Bitcoin, setting the foundation for its future growth.";
+                            console.log(message);
+                            alert(message); // Example: show message in an alert
+                        }
+                    }
                 }
+            }
+
             }
         }
     };
