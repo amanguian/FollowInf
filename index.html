@@ -16,90 +16,88 @@
     </style>
 </head>
 <body>
-    <h1>Bitcoin Price Chart second </h1>
+    <h1>Bitcoin Price Chart</h1>
     <div class="chart-container" style="position: relative; height:40vh; width:80vw">
         <canvas id="btcChart"></canvas>
     </div>
     <script>
         // JavaScript to fetch Bitcoin data and create the chart
         const ctx = document.getElementById('btcChart').getContext('2d');
-    let btcChartData = {
-        labels: [],
-        datasets: [{
-            label: 'BTC Price (USD)',
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',  // Transparent pink
-            borderColor: 'rgb(255, 99, 132)',  // Solid pink
-            data: [],
-            fill: false,
-        }]
-    };
+        const btcChartData = {
+            labels: [],
+            datasets: [{
+                label: 'BTC Price (USD)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Transparent pink
+                borderColor: 'rgb(255, 99, 132)', // Solid pink
+                data: [],
+                fill: false,
+                }]
+                };
 
-    const config = {
+                const config = {
         type: 'line',
         data: btcChartData,
         options: {
             scales: {
-                xAxes: [{
+                x: {
                     type: 'time',
                     time: {
-                        unit: 'minute',
+                        parser: 'MM/DD/YYYY HH:mm',
+                        tooltipFormat: 'll HH:mm',
+                        unit: 'month',
                         displayFormats: {
-                            minute: 'h:mm a'
+                            month: 'MMM YYYY'
                         }
                     },
-                    scaleLabel: {
+                    title: {
                         display: true,
-                        labelString: 'Time'
+                        text: 'Date'
                     }
-                }],
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: false
-                    },
-                    scaleLabel: {
+                },
+                y: {
+                    beginAtZero: false,
+                    title: {
                         display: true,
-                        labelString: 'Price (USD)'
+                        text: 'Price (USD)'
                     }
-                }]
+                }
             },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                }
             }
         }
     };
 
     const btcChart = new Chart(ctx, config);
 
-    async function fetchBitcoinData() {
+    async function fetchHistoricalBitcoinData() {
+        const startTimestamp = 1230940800; // January 3, 2009
+        const endTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+
         try {
-            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=usd&from=${startTimestamp}&to=${endTimestamp}`);
             const data = await response.json();
-            const price = data.bitcoin.usd;
-            const now = new Date();
+            const prices = data.prices;
 
-            if (btcChartData.labels.length > 15) {
-                btcChartData.labels.shift();
-                btcChartData.datasets[0].data.shift();
-            }
+            // Update chart data
+            btcChartData.labels = prices.map(price => new Date(price[0]).toLocaleDateString());
+            btcChartData.datasets[0].data = prices.map(price => price[1]);
 
-            btcChartData.labels.push(now.toLocaleTimeString());
-            btcChartData.datasets[0].data.push(price);
             btcChart.update();
         } catch (error) {
-            console.error('Error fetching Bitcoin data:', error);
+            console.error('Error fetching historical Bitcoin data:', error);
         }
     }
 
-    // Fetch data every minute (60000 milliseconds)
-    setInterval(fetchBitcoinData, 60000);
-
     // Fetch initial data
-    fetchBitcoinData();
+    fetchHistoricalBitcoinData();
     </script>
 </body>
 </html>
