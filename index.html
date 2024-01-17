@@ -94,8 +94,10 @@
 
         const prices = data.prices;
 
-        // Update chart data
-        btcChartData.labels = prices.map(price => new Date(price[0]).toLocaleDateString());
+        console.log(data);
+
+        // Convert the Unix timestamps to Date objects for Chart.js
+        btcChartData.labels = prices.map(price => new Date(price[0]));
         btcChartData.datasets[0].data = prices.map(price => price[1]);
 
         btcChart.update();
