@@ -100,6 +100,20 @@
 
     const btcChart = new Chart(ctx, config);
 
+    const canvas = document.getElementById('btcChart');
+    const chartInstance = new Chart(ctx, config);
+
+    canvas.addEventListener('click', (event) => {
+        // Get the points at the click event
+        const points = chartInstance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+
+        // Check if the click was on the specific annotation point
+        if (points.length && points[0].element.$context.raw === 'Bitcoin Creation') {
+            // Display the information
+            alert("Bitcoin Creation (January 2009): The release of the Bitcoin software by Satoshi Nakamoto and the mining of the genesis block marked the birth of Bitcoin, setting the foundation for its future growth.");
+        }
+    });
+
     async function fetchHistoricalBitcoinData() {
     const startTimestamp = 1230940800; // January 3, 2009
     const endTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
