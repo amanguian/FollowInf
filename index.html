@@ -130,6 +130,64 @@
 
     // Fetch initial data
     fetchHistoricalBitcoinData();
+
+
+    async function fetchLatestBitcoinNews() {
+    const apiKey = '480665a4792f4e30ad8fad6999a2644f'; // Replace with your actual API key
+    const url = 'https://newsapi.org/v2/everything';
+
+    try {
+        const response = await fetch(`${url}?q=Bitcoin&sortBy=publishedAt&apiKey=${apiKey}`);
+        const data = await response.json();
+
+        // Process and filter the news here as required
+        for (let article of data.articles) {
+            // Check if the news is significant enough to add as an annotation
+            print(article);
+            if (isSignificant(article)) {
+                // Add annotation to the chart
+                addNewsAnnotationToChart(article);
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching latest Bitcoin news:', error);
+    }
+    }
+
+    // Function to check if an article is significant
+    function isSignificant(article) {
+        // Implement your logic to determine if the article is significant
+        // For example, you might check the source's credibility or the content's length
+        return true; // This is a placeholder; you would replace it with your actual logic
+    }
+
+    // Function to add a news annotation to the chart
+    function addNewsAnnotationToChart(article) {
+        // Create an annotation object for Chart.js
+        const annotation = {
+            type: 'box',
+            xMin: new Date(article.publishedAt).getTime(),
+            xMax: new Date(article.publishedAt).getTime(),
+            yMin: btcChartData.datasets[0].data[0], // You might want to adjust this value
+            yMax: btcChartData.datasets[0].data[0], // You might want to adjust this value
+            backgroundColor: 'rgba(255, 99, 132, 0.25)',
+            borderWidth: 1,
+            borderColor: 'rgb(255, 99, 132)',
+            label: {
+                content: article.title,
+                enabled: true,
+                position: 'start'
+            }
+        };
+
+        // Assuming 'btcChart' is your Chart.js instance
+        btcChart.options.plugins.annotation.annotations.push(annotation);
+        btcChart.update();
+    }
+
+    // Call the function to fetch news when the page loads
+    fetchLatestBitcoinNews();
+
     </script>
 </body>
 </html>
